@@ -1,14 +1,12 @@
 const express = require("express");
 const cors = require("cors");
+const bodyParser = require('body-parser')
 
 const app = express();
 
-var corsOptions = {
-  origin: "http://localhost:8081"
-};
+app.use(cors());
 
-app.use(cors(corsOptions));
-
+app.use(bodyParser.json())
 // parse requests of content-type - application/json
 app.use(express.json());
 
@@ -16,6 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const db = require("./app/models");
+
 db.mongoose
   .connect(db.url, {
     useNewUrlParser: true,
@@ -29,12 +28,14 @@ db.mongoose
     process.exit();
   });
 
+const middlewares = [];
+const routers = require('./app/routes/index');
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to bezkoder application." });
+  res.json({ message: "Welcome to application." });
 });
 
-require("./app/routes/turorial.routes")(app);
+app.use('/api', middlewares, routers);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
